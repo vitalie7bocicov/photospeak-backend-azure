@@ -1,10 +1,10 @@
 require('dotenv').config();
 
-const axios = require('axios').default;
+const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
-let key = process.env.TRANSLATOR_API_KEY;
-let endpoint = process.env.TRANSLATOR_ENDPOINT;
+const key = process.env.TRANSLATOR_API_KEY;
+const endpoint = process.env.TRANSLATOR_ENDPOINT;
 
 let location = "germanywestcentral";
 
