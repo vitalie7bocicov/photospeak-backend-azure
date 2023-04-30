@@ -1,18 +1,29 @@
-const textToSpeech = require('@google-cloud/text-to-speech');
-const client = new textToSpeech.TextToSpeechClient({
-    keyFilename : "./api-key.json"
-});
+const sdk = require("microsoft-cognitiveservices-speech-sdk");
+const fs = require("fs");
 
-async function synthesize(text, language) {
+require('dotenv').config();
+const SPEECH_API_KEY = process.env.SPEECH_API_KEY;
+const SPEECH_ENDPOINT =  process.env.SPEECH_ENDPOINT;
 
-  const request = {
-    input: {text: text},
-    voice: {languageCode: language, ssmlGender: 'NEUTRAL'},
-    audioConfig: {audioEncoding: 'MP3'},
-  };
-  const [response] = await client.synthesizeSpeech(request);
+async function synthesize(text) {
+  const speechConfig = sdk.SpeechConfig.fromSubscription(SPEECH_API_KEY, 'germanywestcentral');
+  speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm;
+  const synthesizer = new sdk.SpeechSynthesizer(speechConfig, null);
 
-  return response.audioContent;
+  const audioStream = await new Promise((resolve, reject) => {
+    synthesizer.speakTextAsync(text, result => {
+      const audioData = result.audioData.slice(0, result.audioData.byteLength);
+      resolve(audioData);
+      synthesizer.close();
+    }, error => {
+      console.error(error);
+      synthesizer.close();
+      reject(error);
+    });
+  });
+
+
+  return audioStream;
 }
 
 module.exports = synthesize;

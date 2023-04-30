@@ -1,23 +1,43 @@
-const axios = require('axios');
-
 require('dotenv').config();
-const API_KEY = process.env.API_KEY;
 
-async function translateText(text, targetLanguage) {
-    try {
-        const response = await axios.post(
-            `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`,
-            {
-                q: text,
-                target: targetLanguage
-            }
-        );
-        const translation = response.data.data.translations[0].translatedText;
-        return translation;
-    } catch (err) {
-        console.error(`Error translating text "${text}": ${err}`);
-        throw err;
-    }
-}
+const axios = require('axios').default;
+const { v4: uuidv4 } = require('uuid');
 
-module.exports = translateText
+let key = process.env.TRANSLATOR_API_KEY;
+let endpoint = process.env.TRANSLATOR_ENDPOINT;
+
+let location = "germanywestcentral";
+
+const translateText = (text, language) => {
+    return new Promise((resolve, reject) => {
+        axios({
+            baseURL: endpoint,
+            url: '/translate',
+            method: 'post',
+            headers: {
+                'Ocp-Apim-Subscription-Key': key,
+                'Ocp-Apim-Subscription-Region': location,
+                'Content-type': 'application/json',
+                'X-ClientTraceId': uuidv4().toString()
+            },
+            params: {
+                'api-version': '3.0',
+                'from': 'en',
+                'to': [language]
+            },
+            data: [{
+                'text': text
+            }],
+            responseType: 'json'
+        }).then(response => {
+            const translatedText = response.data[0].translations[0].text;
+            resolve(translatedText);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+};
+
+module.exports = translateText;
+
+
