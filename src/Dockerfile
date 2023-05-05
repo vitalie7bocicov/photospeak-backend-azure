@@ -13,10 +13,5 @@ RUN npm install
 # Copy the rest of the application files to the working directory
 COPY . .
 
-# Expose the port that the application listens on
-EXPOSE 8081
-
-
-
 # Start the application
 CMD ["node", "server.js"]
