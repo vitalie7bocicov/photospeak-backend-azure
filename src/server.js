@@ -39,7 +39,7 @@ app.post("/what-is", upload.single("photo"), async (req, res) => {
 app.get("/speech", async (req, res) => {
   const text = req.query.text;
   const audio = await synthesize(text);
-  res.send(audio);
+  res.send(audio._readableState.buffer.head.data);
 });
 app.listen(80, () => {
   console.log("Server is listening on port 80");
